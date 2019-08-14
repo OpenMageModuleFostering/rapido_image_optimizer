@@ -1,0 +1,106 @@
+<?xml version="1.0" ?>
+<config>
+    <modules>
+        <Rapido_ImageOptimizer>
+            <version>15.125.3</version>
+        </Rapido_ImageOptimizer>
+    </modules>
+
+    <global>
+        <helpers>
+            <rapido_imageoptimizer>
+                <class>Rapido_ImageOptimizer_Helper</class>
+            </rapido_imageoptimizer>
+        </helpers>
+
+        <blocks>
+            <rapido_imageoptimizer>
+                <class>Rapido_ImageOptimizer_Block</class>
+            </rapido_imageoptimizer>
+        </blocks>
+
+        <models>
+            <rapido_imageoptimizer>
+                <class>Rapido_ImageOptimizer_Model</class>
+                <resourceModel>rapido_imageoptimizer_resource</resourceModel>
+            </rapido_imageoptimizer>
+            <rapido_imageoptimizer_resource>
+                <class>Rapido_ImageOptimizer_Model_Resource</class>
+                <entities>
+                    <images>
+                        <table>rapido_imageoptimizer_images</table>
+                    </images>
+                </entities>
+            </rapido_imageoptimizer_resource>
+        </models>
+
+        <resources>
+            <rapido_imageoptimizer_setup>
+                <setup>
+                    <module>Rapido_ImageOptimizer</module>
+                </setup>
+            </rapido_imageoptimizer_setup>
+        </resources>
+
+    </global>
+
+    <admin>
+        <routers>
+            <adminhtml>
+                <args>
+                    <modules>
+                        <imageoptimizer after="Mage_Adminhtml">Rapido_ImageOptimizer</imageoptimizer>
+                    </modules>
+                </args>
+            </adminhtml>
+        </routers>
+    </admin>
+
+    <adminhtml>
+        <layout>
+            <updates>
+                <rapido_imageoptimizer>
+                    <file>rapido/imageoptimizer.xml</file>
+                </rapido_imageoptimizer>
+            </updates>
+        </layout>
+    </adminhtml>
+
+    <crontab>
+        <jobs>
+            <rapido_imageoptimizer_collect>
+                <schedule>
+                    <cron_expr>30 3 * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>rapido_imageoptimizer/observer::collectFiles</model>
+                </run>
+            </rapido_imageoptimizer_collect>
+            <rapido_imageoptimizer_convert>
+                <schedule>
+                    <cron_expr>* * * * *</cron_expr>
+                </schedule>
+                <run>
+                    <model>rapido_imageoptimizer/observer::convertFiles</model>
+                </run>
+            </rapido_imageoptimizer_convert>
+        </jobs>
+    </crontab>
+
+    <default>
+        <cms>
+            <rapido_imageoptimizer>
+                <api_url>https://api.rapido.nu/optimizer/v2/upload/</api_url>
+                <status_url>https://api.rapido.nu/optimizer/v2/status/</status_url>
+                <check_url>https://api.rapido.nu/optimizer/v2/check/</check_url>
+                <daily_collect_files>1</daily_collect_files>
+                <hourly_convert_files>1</hourly_convert_files>
+                <max_conversion_amount>5</max_conversion_amount>
+                <keep_original>1</keep_original>
+                <include_dirs><![CDATA[/media/
+/skin/]]></include_dirs>
+                <extensions>gif,jpg,jpeg,png</extensions>
+            </rapido_imageoptimizer>
+        </cms>
+    </default>
+</config>

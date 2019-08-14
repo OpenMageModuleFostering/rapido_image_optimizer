@@ -1,0 +1,4 @@
+.rapido .form-list  {width:100%;}
+.rapido .form-list td.label{width:25% !important;text-align:center;font-weight:bold;}
+.rapido .form-list td.value{text-align:center;font-weight:bold;font-size: 2em;}
+.rapido .form-list td.value.saved{color:#008800;}

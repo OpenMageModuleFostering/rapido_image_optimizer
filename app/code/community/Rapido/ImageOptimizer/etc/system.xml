@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+<config>
+    <sections>
+        <cms>
+            <groups>
+                <rapido_imageoptimizer>
+                    <label>Rapido Image Optimizer</label>
+                    <frontend_type>text</frontend_type>
+                    <sort_order>1000</sort_order>
+                    <show_in_default>1</show_in_default>
+                    <show_in_website>0</show_in_website>
+                    <show_in_store>0</show_in_store>
+                    <fields>
+                        <version>
+                            <label>Extension Version</label>
+                            <frontend_model>Rapido_ImageOptimizer_Block_Api_Version</frontend_model>
+                            <sort_order>1</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </version>
+                        <api_user translate="label comment">
+                            <label>API Username</label>
+                            <comment>Supplied API Username</comment>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>10</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </api_user>
+                        <api_secret translate="label comment">
+                            <label>API Secret</label>
+                            <comment>Supplied API Secret</comment>
+                            <frontend_type>password</frontend_type>
+                            <sort_order>11</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </api_secret>
+                        <test translate="label comment">
+                            <comment>Save settings before running this test.</comment>
+                            <frontend_type>text</frontend_type>
+                            <frontend_model>Rapido_ImageOptimizer_Block_Api_Check</frontend_model>
+                            <sort_order>12</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </test>
+                        <keep_original translate="label comment">
+                            <label>Keep Original File</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>20</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </keep_original>
+                        <daily_collect_files translate="label comment">
+                            <label>Collect files daily (every night)</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>30</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </daily_collect_files>
+                        <hourly_convert_files translate="label comment">
+                            <label>Convert files hourly:</label>
+                            <frontend_type>select</frontend_type>
+                            <source_model>adminhtml/system_config_source_yesno</source_model>
+                            <sort_order>31</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </hourly_convert_files>
+                        <include_dirs translate="label comment">
+                            <label>Search directories</label>
+                            <comment>Supply directory path (from Magento root), one per line</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>40</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </include_dirs>
+                        <exclude_dirs translate="label comment">
+                            <label>Exclude directories</label>
+                            <comment>Supply directory path (from Magento root), one per line</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>41</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </exclude_dirs>
+                        <extensions translate="label comment">
+                            <label>File extensions</label>
+                            <frontend_type>multiselect</frontend_type>
+                            <source_model>rapido_imageoptimizer/system_config_source_extensions</source_model>
+                            <sort_order>42</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </extensions>
+                    </fields>
+                </rapido_imageoptimizer>
+            </groups>
+        </cms>
+    </sections>
+</config>

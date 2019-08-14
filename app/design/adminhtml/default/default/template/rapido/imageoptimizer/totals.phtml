@@ -1,0 +1,47 @@
+<?php if( $stats = $this->getStatistics() ): ?>
+    <?php if ($stats->getImagesConverted()==0):?>
+        <div id="messages"><ul class="messages"><li class="error-msg"><ul><li><span><?php echo $this->__('Image conversion has not started yet. it will be started thru the Magento cron on the hour. Please check back later!');?></span></li></ul></li></ul></div>
+    <?php endif;?>
+
+<div class="entry-edit rapido">
+    <div class="entry-edit-head">
+        <h4 class="icon-head head-edit-form fieldset-legend"><?php echo $this->__('Rapido Image Optimizer Statistics');?></h4>
+        <div class="form-buttons"></div>
+    </div>
+    <div class="fieldset " id="sales_report_base_fieldset">
+        <div class="hor-scroll">
+            <table cellspacing="0" width="100%" class="form-list">
+                <tbody>
+                <tr>
+                    <td class="label"><?php echo $this->__('Images collected:');?></td>
+                    <td class="label"><?php echo $this->__('Images converted:');?></td>
+                    <td class="label"><?php echo $this->__('Waiting optimisation:');?></td>
+                    <td class="label"><?php echo $this->__('Percentage saved:');?></td>
+                </tr>
+                <tr>
+                    <td class="value"><?php echo $stats->getImagesCollected();?></td>
+                    <td class="value"><?php echo $stats->getImagesConverted();?></td>
+                    <td class="value"><?php echo $stats->getImagesWaiting();?></td>
+                    <td class="value saved"><?php echo $stats->getPercentageSaved();?></td>
+                </tr>
+                <tr><td colspan="4">&nbsp;</td></tr>
+                <tr>
+                    <td class="label"><?php echo $this->__('Collected file size:');?></td>
+                    <td class="label"><?php echo $this->__('Original file size:');?></td>
+                    <td class="label"><?php echo $this->__('Converted file size:');?></td>
+                    <td class="label"><?php echo $this->__('Saved file size:');?></td>
+                </tr>
+                <tr>
+                    <td class="value"><?php echo $this->getReadableSize($stats->getSizeImages());?></td>
+                    <td class="value"><?php echo $this->getReadableSize($stats->getSizeOriginal());?></td>
+                    <td class="value"><?php echo $this->getReadableSize($stats->getSizeConverted());?></td>
+                    <td class="value saved"><?php echo $this->getReadableSize($stats->getSizeSaved());?></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php else:?>
+    <div id="messages"><ul class="messages"><li class="error-msg"><ul><li><span><?php echo $this->__('Image collection has not started yet. it will be started thru the Magento cron every night at 3:30am. Please check back later!');?></span></li></ul></li></ul></div>
+<?php endif;?>

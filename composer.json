@@ -1,0 +1,16 @@
+{
+    "name": "OpenMageModuleFostering/rapido_image_optimizer",
+    "type": "magento-module",
+    "license": "OSL-v.3.0",
+    "homepage": "",
+    "description": "Rapido is a robust, ultra-fast image optimizer and compressor with best-in-class algorithms for Magento. ",
+    "authors": [
+    {
+        "name": "Ray Bogman",
+        "email": "ray@rapido.nu"
+    }
+],
+    "suggest": {
+        "magento-hackathon/magento-composer-installer": "*"
+    }
+}
