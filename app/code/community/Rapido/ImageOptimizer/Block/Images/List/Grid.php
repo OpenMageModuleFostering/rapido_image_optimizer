@@ -106,33 +106,6 @@ class Rapido_ImageOptimizer_Block_Images_List_Grid extends Mage_Adminhtml_Block_
         return $this;
     }
 
-    protected function _prepareMassaction()
-    {
-        $this->setMassactionIdField('entity_id');
-        $this->getMassactionBlock()->setFormFieldName('image_ids');
-        $this->getMassactionBlock()->setUseSelectAll(true);
-
-        $this->getMassactionBlock()->addItem(
-            'revert',
-            array(
-                'label' => Mage::helper('rapido_imageoptimizer')
-                    ->__('Revert Image'),
-                'url' => $this->getUrl('adminhtml/tools_image_optimizer/revert'),
-            )
-        );
-
-        $this->getMassactionBlock()->addItem(
-            'retry',
-            array(
-                'label' => Mage::helper('rapido_imageoptimizer')
-                    ->__('Queue to optimize'),
-                'url' => $this->getUrl('adminhtml/tools_image_optimizer/retry'),
-            )
-        );
-
-        return $this;
-    }
-
     public function getRowUrl($row)
     {
         return false;

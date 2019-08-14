@@ -11,17 +11,9 @@
                     <show_in_website>0</show_in_website>
                     <show_in_store>0</show_in_store>
                     <fields>
-                        <version>
-                            <label>Extension Version</label>
-                            <frontend_model>Rapido_ImageOptimizer_Block_Api_Version</frontend_model>
-                            <sort_order>1</sort_order>
-                            <show_in_default>1</show_in_default>
-                            <show_in_website>0</show_in_website>
-                            <show_in_store>0</show_in_store>
-                        </version>
                         <api_user translate="label comment">
                             <label>API Username</label>
-                            <comment><![CDATA[Supplied API Username.<br>No account? Register now on <a target=_blank href='https://www.rapido.nu/?utm_source=magentoconnect&utm_medium=module&utm_campaign=rapido-image-optimizer&utm_content=need-api-key'>Rapido.nu</a> ]]></comment>
+                            <comment>Supplied API Username</comment>
                             <frontend_type>password</frontend_type>
                             <sort_order>10</sort_order>
                             <show_in_default>1</show_in_default>
@@ -73,16 +65,24 @@
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
                         </hourly_convert_files>
-                        <directories>
+                        <include_dirs translate="label comment">
                             <label>Search directories</label>
                             <comment>Supply directory path (from Magento root), one per line</comment>
+                            <frontend_type>textarea</frontend_type>
                             <sort_order>40</sort_order>
                             <show_in_default>1</show_in_default>
                             <show_in_website>0</show_in_website>
                             <show_in_store>0</show_in_store>
-                            <frontend_model>rapido_imageoptimizer/system_config_form_directories</frontend_model>
-                            <backend_model>rapido_imageoptimizer/system_config_backend_serialized</backend_model>
-                        </directories>
+                        </include_dirs>
+                        <exclude_dirs translate="label comment">
+                            <label>Exclude directories</label>
+                            <comment>Supply directory path (from Magento root), one per line</comment>
+                            <frontend_type>textarea</frontend_type>
+                            <sort_order>41</sort_order>
+                            <show_in_default>1</show_in_default>
+                            <show_in_website>0</show_in_website>
+                            <show_in_store>0</show_in_store>
+                        </exclude_dirs>
                         <extensions translate="label comment">
                             <label>File extensions</label>
                             <frontend_type>multiselect</frontend_type>
