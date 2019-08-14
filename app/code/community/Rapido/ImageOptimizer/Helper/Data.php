@@ -12,94 +12,221 @@ class Rapido_ImageOptimizer_Helper_Data extends Mage_Core_Helper_Abstract
 
     public function collectFiles()
     {
-        $this->_ext = explode(",", $this->getConfig('extensions'));
-
-        $excluded = explode("\n", $this->getConfig('exclude_dirs'));
-        foreach ($excluded as $dir) {
-            $dir = trim($dir, '\\/');
-            $this->_excludedir[] = rtrim(Mage::getBaseDir(), '\\/') . '/' . $dir . '/';
-        }
-        $basepaths = array();
-        $included = explode("\n", $this->getConfig('include_dirs'));
-        foreach ($included as $dir) {
-            $dir = trim($dir, '\\/ ');
-            if ($dir) {
-                $basepaths[] = rtrim(Mage::getBaseDir(), '\\/') . '/' . $dir . '/';
-            }
-        }
-
-        foreach ($basepaths as $basepath) {
-            $this->getDirectoryFiles($basepath);
-        }
-
         $collection = Mage::getResourceModel('rapido_imageoptimizer/images_collection');
         $hashData = array();
-        foreach ($collection as $images) {
+
+        while ($images = $collection->fetchItem()) {
             $hashData[$images->getFullPath()] = array(
-                'original_checksum' => $images->getOriginalChecksum(),
-                'converted_checksum' => $images->getConvertedChecksum()
+                'o' => $images->getOriginalChecksum(),
+                'c' => $images->getConvertedChecksum()
             );
         }
 
-        $imgModel = Mage::getModel('rapido_imageoptimizer/images');
-        foreach ($this->_files as $id => $file) {
-            $storeNewFile = true;
-            if (isset($hashData[$file['path'] . $file['file']])) {
-                if ($hashData[$file['path'] . $file['file']]['original_checksum'] == $file['checksum'] ||
-                    $hashData[$file['path'] . $file['file']]['converted_checksum'] == $file['checksum']
-                ) {
-                    unset($this->_files[$id]);
-                    $storeNewFile = false;
-                }
-            }
-            if ($storeNewFile) {
-                $img = $imgModel
-                    ->setCreatedate(now())
-                    ->setStatus(Rapido_ImageOptimizer_Model_Status::STATUS_NEW)
-                    ->setFullPath($file['path'] . $file['file'])
-                    ->setImageName($file['file'])
-                    ->setOriginalChecksum($file['checksum'])
-                    ->setOriginalSize($file['size']);
+        $ext = '{*.'.implode(',*.', explode(",", $this->getConfig('extensions'))).'}';
 
-                if ($file['size']>self::MAX_FILE_SIZE) {
-                    $img->setStatus(Rapido_ImageOptimizer_Model_Status::STATUS_TOBIG);
-                }
-
-                try {
-                    $img->save();
-                } catch (Exception $ex) {
-                    Mage::log($ex->getMessage());
-                }
-                $img->unsetData();
+        $dirs = unserialize($this->getConfig('directories'));
+        $basePaths = array();
+        foreach ($dirs as $dir) {
+            $path = trim($dir['path']);
+            $path = trim($path, '\\/');
+            switch ($dir['action']) {
+                case 0: // Disabled
+                    break;
+                case 1: // Include path
+                    $basePaths[] = array(
+                        'path' =>rtrim(Mage::getBaseDir(), '\\/') . DS . $path,
+                        'recur' => $dir['recur'],
+                    );
+                    break;
+                case 2: // Exclude path
+                    $this->_excludedir[] = rtrim(Mage::getBaseDir(), '\\/') . DS . $path . DS;
             }
         }
-        return count($this->_files);
+        $imgCount = 0;
+        $imgModel = Mage::getModel('rapido_imageoptimizer/images');
+        foreach ($basePaths as $basePath) {
+            if ($basePath['recur']) {
+                $dirs = $this->findAllDirs($basePath['path']);
+            } else {
+                $dirs[] = $basePath['path'];
+            }
+            foreach ($dirs as $dir) {
+                $match = glob($dir . $ext, GLOB_NOSORT|GLOB_BRACE);
+                if (!$match) {
+                    continue;
+                }
+                foreach ($match as $image) {
+                    $file = array();
+                    $file['path'] = $dir;
+                    $file['file'] = str_replace($dir, '', $image);
+                    $file['crc']  = sha1_file($image);
+                    $file['size'] = filesize($image);
+
+                    if (isset($hashData[$file['path'] . $file['file']])) {
+                        if ($hashData[$file['path'] . $file['file']]['o'] == $file['crc'] ||
+                            $hashData[$file['path'] . $file['file']]['c'] == $file['crc']
+                        ) {
+                            continue;
+                        }
+                    }
+                    $img = $imgModel
+                        ->setCreatedate(now())
+                        ->setStatus(Rapido_ImageOptimizer_Model_Status::STATUS_NEW)
+                        ->setFullPath($file['path'] . $file['file'])
+                        ->setImageName($file['file'])
+                        ->setOriginalChecksum($file['crc'])
+                        ->setOriginalSize($file['size']);
+
+                    if ($file['size'] > self::MAX_FILE_SIZE) {
+                        $img->setStatus(Rapido_ImageOptimizer_Model_Status::STATUS_TOBIG);
+                    }
+
+                    try {
+                        $img->save();
+
+                        $hashData[$img->getFullPath()] = array(
+                            'o' => $img->getOriginalChecksum(),
+                            'c' => $img->getConvertedChecksum()
+                        );
+                        $imgCount++;
+                    } catch (Exception $ex) {
+                        Mage::log($ex->getMessage());
+                    }
+
+                    $img->unsetData();
+                }
+            }
+        }
+        return $imgCount;
     }
 
-    public function getDirectoryFiles($path)
+    protected function findAllDirs($start)
+    {
+        $dirStack=[$start];
+        while ($dir=array_shift($dirStack)) {
+            $ar=glob($dir.'*', GLOB_ONLYDIR|GLOB_NOSORT|GLOB_MARK);
+            if (!$ar) {
+                continue;
+            }
+            foreach ($ar as $id => $path) {
+                if (in_array($path, $this->_excludedir)) {
+                    unset($ar[$id]);
+                }
+            }
+
+            $dirStack=array_merge($dirStack, $ar);
+            foreach ($ar as $DIR) {
+                yield $DIR;
+            }
+        }
+    }
+
+    public function collectFilesOld()
+    {
+        $this->_ext = explode(",", $this->getConfig('extensions'));
+
+        $dirs = unserialize($this->getConfig('directories'));
+        $basePaths = array();
+        foreach ($dirs as $dir) {
+            $path = trim($dir['path']);
+            $path = trim($path, '\\/');
+            switch ($dir['action']) {
+                case 0: // Disabled
+                    break;
+                case 1: // Include path
+                    $basePaths[] = array(
+                            'path' =>rtrim(Mage::getBaseDir(), '\\/') . DS . $path . DS,
+                            'recur' => $dir['recur'],
+                        );
+                    break;
+                case 2: // Exclude path
+                    $this->_excludedir[] = rtrim(Mage::getBaseDir(), '\\/') . DS . $path . DS;
+            }
+        }
+        $collection = Mage::getResourceModel('rapido_imageoptimizer/images_collection');
+        $hashData = array();
+
+        while ($images = $collection->fetchItem()) {
+            $hashData[$images->getFullPath()] = array(
+                'o' => $images->getOriginalChecksum(),
+                'c' => $images->getConvertedChecksum()
+            );
+        }
+        $imgCount = 0;
+        $imgModel = Mage::getModel('rapido_imageoptimizer/images');
+        foreach ($basePaths as $basePath) {
+            $this->_files = array();
+            $this->getDirectoryFiles($basePath['path'], $basePath['recur']);
+
+            foreach ($this->_files as $id => $file) {
+                $storeNewFile = true;
+                if (isset($hashData[$file['path'] . $file['file']])) {
+                    if ($hashData[$file['path'] . $file['file']]['o'] == $file['crc'] ||
+                        $hashData[$file['path'] . $file['file']]['c'] == $file['crc']
+                    ) {
+                        unset($this->_files[$id]);
+                        $storeNewFile = false;
+                    }
+                }
+                if ($storeNewFile) {
+                    $img = $imgModel
+                        ->setCreatedate(now())
+                        ->setStatus(Rapido_ImageOptimizer_Model_Status::STATUS_NEW)
+                        ->setFullPath($file['path'] . $file['file'])
+                        ->setImageName($file['file'])
+                        ->setOriginalChecksum($file['crc'])
+                        ->setOriginalSize($file['size']);
+
+                    if ($file['size'] > self::MAX_FILE_SIZE) {
+                        $img->setStatus(Rapido_ImageOptimizer_Model_Status::STATUS_TOBIG);
+                    }
+
+                    try {
+                        $img->save();
+
+                        $hashData[$img->getFullPath()] = array(
+                            'o' => $img->getOriginalChecksum(),
+                            'c' => $img->getConvertedChecksum()
+                        );
+                        $imgCount++;
+                    } catch (Exception $ex) {
+                        Mage::log($ex->getMessage());
+                    }
+
+                    $img->unsetData();
+                }
+            }
+        }
+        return $imgCount;
+    }
+
+    public function getDirectoryFiles($path, $recur = true)
     {
         if (in_array($path, $this->_excludedir)) {
             return;
         }
-        $tmpFiles = scandir($path);
-        foreach ($tmpFiles as $file) {
-            if ($file == '.' || $file == '..') {
-                continue;
-            }
-
-            if (is_dir($path . $file)) {
-                $this->getDirectoryFiles($path . $file . '/');
-            } else {
-                $ext = substr($file, strrpos($file, '.') + 1);
-                if (in_array($ext, $this->_ext)) {
-                    $this->_files[] = array(
-                        'path' => $path,
-                        'file' => $file,
-                        'checksum' => sha1_file($path . $file),
-                        'size' => filesize($path . $file),
-                    );
+        if ($handle = opendir($path)) {
+            while (false !== ($file = readdir($handle))) {
+                if ($file == '.' || $file == '..') {
+                    continue;
+                }
+                if (is_dir($path . $file)) {
+                    if ($recur) {
+                        $this->getDirectoryFiles($path . $file . DS, $recur);
+                    }
+                } else {
+                    $ext = substr($file, strrpos($file, '.') + 1);
+                    if (in_array($ext, $this->_ext)) {
+                        $this->_files[] = array(
+                            'path' => $path,
+                            'file' => $file,
+                            'crc' => sha1_file($path . $file),
+                            'size' => filesize($path . $file),
+                        );
+                    }
                 }
             }
+            closedir($handle);
         }
     }
 

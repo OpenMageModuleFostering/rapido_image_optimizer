@@ -3,6 +3,11 @@
 class Rapido_ImageOptimizer_Tools_Image_OptimizerController extends Mage_Adminhtml_Controller_Action
 {
 
+    public function _isAllowed()
+    {
+        return Mage::getSingleton('admin/session')->isAllowed('system/tools/imageoptimizer');
+    }
+
     public function indexAction()
     {
         $this->loadLayout()
