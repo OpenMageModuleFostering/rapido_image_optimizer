@@ -1,3 +1,5 @@
+
+
 ## Original Package Description
 
 Rapido is a robust, ultra-fast image optimizer and compressor with best-in-class algorithms for Magento. 
